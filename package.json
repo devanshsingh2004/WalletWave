@@ -8,6 +8,7 @@
     "npm": "10.8.1"
   },
   "scripts": {
+    "start": "node server/server.js",
     "server": "nodemon server/server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
@@ -23,7 +24,6 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
-    "nodemon": "^3.1.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "stripe": "^18.2.1",
