@@ -28,8 +28,6 @@ router.post("/transfer-funds", authMiddleware, async (req, res) => {
   }
 });
 
-/* VERIFY RECEIVER'S ACCOUNT */
-
 router.post("/verify-account", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.body.receiver);
@@ -40,8 +38,6 @@ router.post("/verify-account", authMiddleware, async (req, res) => {
     res.send({ message: error.message, data: null, success: false });
   }
 });
-
-/* GET ALL TRANSACTIONS FOR A USER */
 
 router.post(
   "/get-all-transactions-by-user",
@@ -70,14 +66,10 @@ router.post(
   }
 );
 
-/* DEPOSIT FUNDS VIA STRIPE (Payment Intents) */
-
 router.post("/deposit-funds", authMiddleware, async (req, res) => {
   try {
     const { token, amount } = req.body;
     const amountInCents = Math.round(Number(amount) * 100);
-
-    /* Create (or find) a Customer ------------------------------------ */
     let customer;
     const existing = await stripe.customers.list({
       email: token.email,
@@ -94,7 +86,6 @@ router.post("/deposit-funds", authMiddleware, async (req, res) => {
       });
     }
 
-    /* Create & confirm a Payment Intent ------------------------------ */
     const paymentIntent = await stripe.paymentIntents.create(
       {
         amount: amountInCents,
@@ -108,7 +99,6 @@ router.post("/deposit-funds", authMiddleware, async (req, res) => {
       { idempotencyKey: uuidv4() } // ✅ header-level idempotency key
     );
 
-    /* Persist transaction only on success ---------------------------- */
     if (paymentIntent.status === "succeeded") {
       const newTransaction = await new Transaction({
         sender: req.body.userId,
