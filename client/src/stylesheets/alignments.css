@@ -1,4 +1,4 @@
-/* heights and widths */
+
 .h-screen {
   height: 100vh;
 }
@@ -19,7 +19,7 @@
   width: 400px;
 }
 
-/* flex */
+
 .flex {
   display: flex;
 }
@@ -53,7 +53,7 @@
   gap: 30px;
 }
 
-/* margins and paddings */
+
 .m-1 {
   margin: 10px;
 }

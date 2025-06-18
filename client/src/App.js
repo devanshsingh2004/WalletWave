@@ -23,7 +23,7 @@ function App() {
 
   return (
     <div>
-      {/* Show the loader if isLoading is true */}
+
       {isLoading && <div className="loader">Loading...</div>}
 
       <BrowserRouter>
