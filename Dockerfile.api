@@ -1,0 +1,21 @@
+# -------- base layer --------
+FROM node:20.15.0-alpine AS base
+WORKDIR /app
+
+# -------- deps layer --------
+# root package.json contains *all* API dependencies
+COPY package*.json ./
+RUN npm install --omit=dev       # ≈ 120 MB ➜ 40 MB after pruning
+
+# -------- release layer --------
+FROM base AS release
+ENV NODE_ENV=production
+
+# copy installed modules
+COPY --from=base /app/node_modules ./node_modules
+# copy only the server source code
+COPY server/ ./server
+
+EXPOSE 5000
+CMD ["node", "server/server.js"]
+
