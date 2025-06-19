@@ -1,0 +1,64 @@
+name: Node & Docker CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]          # match your Dockerfile
+
+    steps:
+      # 1️⃣  Check out code
+      - uses: actions/checkout@v4
+
+      # 2️⃣  Set up Node + dependency cache
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # 3️⃣  Install root (API) deps reproducibly
+      - name: npm ci (root)
+        run: npm ci --ignore-scripts
+
+      # 4️⃣  Install & build client
+      - name: npm ci (client)
+        run: npm ci --prefix client --ignore-scripts
+      - name: Build React
+        run: npm run build --prefix client
+
+      # 5️⃣  Run tests (skip if none yet)
+      - name: Run API tests
+        run: npm test --if-present
+      - name: Run client tests
+        run: npm test --prefix client --if-present
+
+  # ---------- OPTIONAL: build Docker images ----------
+  docker-build:
+    if: github.event_name == 'push'   # run only on pushes to main
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1️⃣  Set up Buildx (multi-platform Docker builder)
+      - uses: docker/setup-buildx-action@v3
+
+      # 2️⃣  Cache Docker layers for faster rebuilds
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx-
+
+      # 3️⃣  Build the production stack (no push)
+      - name: docker compose build (prod profile)
+        run: docker compose --profile prod build
