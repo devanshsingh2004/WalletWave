@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  # ---------------- MongoDB ----------------
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - dbdata:/data/db
+
+  # ---------------- Node / Express API ----------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api          # root-level Dockerfile
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    # Load every key from .env, then explicitly pass the ones
+    # the container (and your code) should expose.
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI
+      - mongo_url          # legacy alias
+      - JWT_SECRET
+      - jwt_secret         # legacy alias
+      - STRIPE_SECRET_KEY
+      - stripe_key         # legacy alias
+    volumes:
+      - ./server:/app/server
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+    command: npx nodemon server/server.js
+
+  # ---------------- React dev server ----------------
+  web:
+    build:
+      context: ./client
+      target: builder                      # dev image with hot-reload
+    ports:
+      - "3000:3000"
+    environment:
+      # CRA will forward /api/* to this address
+      - REACT_APP_API=http://api:5000
+    volumes:
+      - ./client:/app
+    command: npm start
+
+  # ---------------- React static (production) --------
+  web-prod:
+    build:
+      context: ./client
+      target: nginx
+    depends_on:
+      - api
+    profiles: ["prod"]
+    ports:
+      - "8080:80"
+
+volumes:
+  dbdata:
+
