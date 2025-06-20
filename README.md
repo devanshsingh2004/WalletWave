@@ -22,7 +22,7 @@ WalletWave is a lightweight, mobile‑first personal‑finance web app that lets
 
 | Layer        | Stack                                                                                           |
 |--------------|-------------------------------------------------------------------------------------------------|
-| Front‑end    | React 18 · Redux Toolkit · Ant Design · Tailwind CSS · ShadCN/UI                                 |
+| Front‑end    | React 18 · Redux Toolkit · Ant Design                                                           |
 | Back‑end     | Node 20 · Express · REST API · JWT                                                               |
 | Database     | MongoDB Atlas                                                                                   |
 | Payments     | Stripe (webhooks)                                                                               |
