@@ -54,7 +54,7 @@ services:
   web-prod:
     build:
       context: ./client
-      target: nginx
+      target: runner
     depends_on:
       - api
     profiles: ["prod"]
