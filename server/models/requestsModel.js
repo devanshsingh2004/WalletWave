@@ -9,6 +9,7 @@ const requestSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -16,6 +17,7 @@ const requestSchema = new mongoose.Schema(
     },
 
     description: { type: String, required: true },
+
     status: {
       type: String,
       default: "pending",
@@ -24,5 +26,8 @@ const requestSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+requestSchema.index({ sender: 1 });
+requestSchema.index({ receiver: 1 });
 
 module.exports = mongoose.model("Request", requestSchema);
